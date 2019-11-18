@@ -9,6 +9,9 @@
   "author": "jrb <jrb.youssef@gmail.com>",
   "license": "ISC",
   "dependencies": {
+    "@vue/cli": "^4.0.5",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0"
