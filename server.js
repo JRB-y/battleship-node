@@ -2,10 +2,12 @@ const http = require('http');
 const path = require('path');
 const express = require('express');
 const app = express();
-const cors = require('cors')
+// const cors = require('cors')
 
 const server = http.createServer(app);
-const io = require('socket.io').listen(server);
+const io = require('socket.io')(server, {
+  origins: '*:*'
+});
 
 // List of all sockets 
 let connections = [];
@@ -25,7 +27,7 @@ app.get("/", (req, res) => {
 /**
  | Static files
  */
-app.use(cors())
+// app.use(cors())
 app.use('/modules', express.static(__dirname + '/node_modules/socket.io-client/dist'));
 app.use(express.static(path.join(__dirname, 'public')));
 
