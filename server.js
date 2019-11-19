@@ -10,9 +10,10 @@ const io = require('socket.io').listen(server);
 let connections = [];
 let players = [];
 
+let port = process.env.PORT || 8000;
 
-server.listen(8000, () => {
-  console.log('Server Listening on port 8000');
+server.listen(port, () => {
+  console.log('Server Listening on port %s', port);
 });
 
 // Routing
