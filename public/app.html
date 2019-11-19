@@ -37,7 +37,7 @@
   <script src="modules/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script>
-    let globalSocket = io.connect('localhost:8000');
+    let globalSocket = io.connect('http://localhost:8000');
 
     let app = new Vue({
       el: '#app',
@@ -87,7 +87,7 @@
         globalSocket.on('game-ready', function (gamePlayers) {
 
           let host = gamePlayers.host;
-          let gameSocket = io.connect(`localhost:8000/${host[0]}`);
+          let gameSocket = io.connect(`http://localhost:8000/${host[0]}`);
           console.log(`Connected to: localhost:8000/${host[0]}`)
           this.lunchRoom();
         })
@@ -107,7 +107,7 @@
           let host = this.host;
           let guest = this.guest;
 
-          let gameSocket = io.connect(`localhost:8000/${host[0]}`);
+          let gameSocket = io.connect(`http://localhost:8000/${host[0]}`);
 
           console.log(`Connected to: localhost:8000/${host[0]}`)
 

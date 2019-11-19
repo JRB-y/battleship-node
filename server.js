@@ -5,10 +5,8 @@ const app = express();
 // const cors = require('cors')
 
 const server = http.createServer(app);
-const io = require('socket.io')(server, {
-  origins: '*:*'
-});
-
+const io = require('socket.io')(server);
+io.set('origins', '*:*');
 // List of all sockets 
 let connections = [];
 let players = [];
