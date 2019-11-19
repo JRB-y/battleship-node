@@ -22,7 +22,7 @@ h1 {
 
 h1#title {
   text-align: center;
-  margin-top: 150px;
+  margin-top: 50px;
 }
 
 #users-list {
@@ -53,5 +53,18 @@ h1#title {
 .user-item:hover {
   cursor: pointer;
   background-image: linear-gradient(to left, #6955a0, #4d6397);
+}
 
+#name-box {
+  text-align: center;
+}
+
+#name-input {
+  width: 30%;
+  height: 38px;
+  border: 1px solid black;
+  font-size: 18px;
+  background: #ffffffa3;
+  border-radius: 5px;
+  padding-left: 19px;
 }

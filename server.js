@@ -1,59 +1,56 @@
-/**
- * Server Side of the application
- */
-const express = require("express");
-const app = express();
-// http need to create the server
-const http = require("http").createServer();
-// we need to pass the http to the io()
-const io = require("socket.io")(http);
-
-const ioClient = require("socket.io-client");
-
+const http = require('http');
 const path = require('path');
-const port = process.env.PORT || 3000;
+const express = require('express');
+const app = express();
 
+const server = http.createServer(app);
+const io = require('socket.io').listen(server);
 
-
+// Array of users (socket)
 let users = [];
 
-// css static
-app.use(express.static(__dirname + '/public'));
-app.use(express.static(__dirname + '/node_modules'));
+// number of players connected to the socket to start a game
+let playersOnGame = 2;
 
-// Route the application
-app.get('/', (req, res) => {
-  let client = ioClient.connect("http://localhost:3000");
-  client.on('connection', socket => console.log('user connected'))
+server.listen(8000);
 
-  res.sendFile(path.join(__dirname + '/public/dashboard.html'));
+// Routing
+app.get("/", (req, res) => {
+  res.sendFile(__dirname + '/public/app.html');
+});
+
+/**
+| Static files
+*/
+app.use('/modules', express.static(__dirname + '/node_modules/socket.io-client/dist'));
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Listening to The socket
+io.sockets.on('connection', (socket) => {
+
+  users.push(socket);
+  console.log(`A new user: ${users.length} player(s) online`);
+
+  socket.on('register-name', () => {
+    console.log(1);
+    socket.emit('players-online');
+    console.log(2);
+  });
+
+
+  // On disconnect
+  socket.on('disconnect', function () {
+    console.log('User Disconncted');
+    users.forEach(function (item, index) {
+      if (item.id == socket.id) {
+        users.splice(index, 1);
+        console.log(`User disconnected: ${users.length} player(s) online`);
+        return true;
+      }
+    })
+  })
+
 })
 
-// some rooms
-// const gameRooms = ["Room-1", "Room-2", "Room-3"];
-
-// io.of("/games").on("connection", socket => {
-
-//   // emit an event when connect to the namespace
-//   socket.emit('games-joined', 'Welcome to  Game Area');
-
-//   socket.on("joinRoom", (room) => {
-//     if (gameRooms.includes(room)) {
-//       socket.join(room);
-//       return socket.emit('success', 'You have joined: ' + room)
-//     } else {
-//       return socket.emit('err', 'No Room name ' + room)
-//     }
-//   })
-
-// });
-
-
-
-app.listen(port, () => {
-  console.log(`Listening on ${port}`);
-  io.on('connection', socket => {
-    console.log('New USER');
-    // users.push(socket);
-  })
-});
+// socket server
