@@ -11,62 +11,112 @@
 </head>
 
 <body>
+  <div id="app">
+    <h1 id="title">{{title}}</h1>
+
+    <span v-if="invitation" style="display:block; text-align: center; color:white; cursor: pointer;" @click="gameInit">
+      Allow {{guest[1]}} to join ?
+    </span>
+
+    <div id="name-box" v-if="!hasNickname">
+      <h5 id="name-box-title">Enter your nickname</h5>
+      <input type="text" id="name-input" placeholder="YOUR NICKNAME" v-model="nickname" @keyup.enter="sendNickname"
+        autofocus>
+    </div>
+
+    <div id="users-list" v-if="isWaiting">
+      <li class="user-item" v-for="player in players" v-if="nickname != player[1]" @click="joinRequest(player)">
+        {{player[1]}}
+      </li>
+    </div>
+
+    <div id="game" v-if="gameStart"></div>
+
+  </div>
 
   <script src="modules/socket.io.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
   <script>
-    const socket = io('http://localhost:8000');
-  </script>
+    let globalSocket = io.connect('localhost:8000');
 
-  <h1 id="title">Battleship</h1>
+    let app = new Vue({
+      el: '#app',
+
+      data: {
+        title: 'Battleship Online',
+        hasNickname: false,
+        isWaiting: false,
+        gameStart: false,
+        players: [],
+        nickname: '',
+        host: null,
+        guest: null,
+        invitation: false,
+      },
+
+      mounted() {
+        var self = this;
+
+        // On welcome event
+        globalSocket.on('welcome', (players) => {
+          if (this.hasNickname) {
+            self.players = players;
+            self.isWaiting = true;
+            console.log(players);
+          }
+        });
+
+        globalSocket.on('user-disconcted', function (user) {
+          self.players.forEach(function (item, index) {
+            if (item[1] == user[1]) {
+              self.players.splice(index, 1);
+              return true;
+            }
+          })
+        });
 
 
-  <div id="name-box">
-    <h5 id="name-box-title">Enter your name</h5>
-    <input type="text" name="name" id="name-input" autofocus onkeydown="enterName(event)">
-  </div>
+        // receive an invitation
+        globalSocket.on('game-request', function (gamePlayers) {
+          self.host = gamePlayers.host;
+          self.guest = gamePlayers.guest;
 
-  <div id="users-list" style="display: none;">
+          self.invitation = true;
+        });
 
-  </div>
+        globalSocket.on('game-ready', function (gamePlayers) {
 
+          let host = gamePlayers.host;
+          let gameSocket = io.connect(`localhost:8000/${host[0]}`);
+          console.log(`Connected to: localhost:8000/${host[0]}`)
+          this.lunchRoom();
+        })
+      },
 
-  <script>
-    /**********************
-    | UI Interface
-    */
-    function enterName(e) {
+      methods: {
+        sendNickname() {
+          globalSocket.emit('new-user', this.nickname);
+          this.hasNickname = true;
+        },
+        joinRequest(host) {
+          // emit game-request to player's socket
+          globalSocket.emit('send-game-request', host);
+        },
 
-      let name = document.getElementById('name-input').value;
+        gameInit() {
+          let host = this.host;
+          let guest = this.guest;
 
-      if (e.keyCode == 13) {
-        validateName(name)
+          let gameSocket = io.connect(`localhost:8000/${host[0]}`);
 
+          console.log(`Connected to: localhost:8000/${host[0]}`)
+
+          globalSocket.emit('game-init', {
+            host,
+            guest
+          });
+        }
       }
-    }
-    // validate the name input if is empty.
-    function validateName(name) {
-      if (name == "") {
-        document.getElementById("name-box-title").style.color = "red";
-        document.getElementById('name-input').style.border = "1px solid red";
-      } else {
-        registerName(name)
-      }
-    }
-    // save the name of the user in Cookie
-    function registerName(name) {
-      document.cookie = `name= ${name}`;
-      socket.emit('register-name', name);
-      document.getElementById('name-box').style.display = "none";
-      document.getElementById('users-list').style.display = "block";
-
-      // document.getElementById("name-box-title").style.color = "#191919";
-      // document.getElementById('name-input').style.border = "none";
-    }
-
-    // SOCKET
-    socket.on('players-online', function (users) {
-      console.log(users);
     })
   </script>
 </body>
