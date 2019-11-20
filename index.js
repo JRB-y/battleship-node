@@ -1,15 +1,15 @@
 import {
   app,
   io
-} from './server';
+} from './src/server';
 
 // Matchmaking sockets
-require('./socket/matchmaking')(io);
+require('./src/socket/matchmaking')(io);
 /**
  * -----------------------------------
  *  Entry point for the application
  * -----------------------------------
  */
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + '/public/app.html');
+  res.sendFile(__dirname + '/src/public/app.html');
 });

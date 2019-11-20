@@ -17,7 +17,10 @@ new Vue({
     cell: {
       id: '',
       class: ''
-    }
+    },
+    ready: false,
+    shipToPlace: null,
+    cellStateColor: ''
   },
 
   mounted() {
@@ -105,6 +108,54 @@ new Vue({
             id: `cell-${i}-${j}`
           })
       }
+    },
+    shipFocused: function (ship) {
+
+      if (ship == 1) {
+        this.shipToPlace = 1;
+      }
+      if (ship == 2) {
+        this.shipToPlace = 2;
+      }
+      if (ship == 3) {
+        this.shipToPlace = 3;
+      }
+      if (ship == 4) {
+        this.shipToPlace = 4;
+      }
+    },
+    mouseOnCell: function (event) {
+      if (this.shipToPlace) {
+        if (this.shipToPlace == 1) {
+          // On a l'element
+          console.log(event.target.id)
+          let elementArray = event.target.id.split("-")
+          if (
+            parseInt(elementArray[1]) + 1 > 9 || parseInt(elementArray[1]) - 1 < 0) {
+            event.target.addClass = "RARARA";
+          } else {
+            this.cellStateColor = "";
+          }
+          // Il faut qu'on cherche les elements:
+          // - cell-${i-1}-{j}
+          // - cell-${i+1}-{j}
+
+          // Il faut binder la couleur verte ou rouge
+        }
+        if (this.shipToPlace == 2) {
+          //
+        }
+        if (this.shipToPlace == 3) {
+          //
+        }
+        if (this.shipToPlace == 4) {
+          //
+        }
+
+      }
+    },
+    mouseLeaveCell: function (event) {
+      this.cellStateColor = "";
     }
   }
 });

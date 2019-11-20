@@ -31,7 +31,7 @@ const port = process.env.PORT || 9900;
  * 
  */
 app.use('/modules', express.static(__dirname + '/../node_modules/socket.io-client/dist'));
-app.use(express.static(path.join(__dirname, '/../public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 
 
@@ -50,5 +50,10 @@ server.listen(port, () => {
  * =========================
  */
 module.exports = {
-    express, http, app, server, port, io
+    express,
+    http,
+    app,
+    server,
+    port,
+    io
 }

@@ -4,6 +4,7 @@
   "description": "Battleeship online made with nodejs.",
   "main": "index.js",
   "scripts": {
+    "nodemon": "nodemon --exec babel-node index.js",
     "clean": "rm -rf build && mkdir build",
     "build-babel": "babel -d ./build ./src -s",
     "build": "npm run clean && npm run build-babel",
