@@ -1,129 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>Battleship Online</title>
 
-    <link rel="stylesheet" href="css/app.css" />
-  </head>
+<head>
+  <title>Battleship Online</title>
+  <link rel="stylesheet" href="css/app.css" />
+</head>
 
-  <body>
-    <div id="app">
-      <h1 id="title">{{title}}</h1>
+<body>
+  <div id="app">
+    <h1 id="title">{{appTitle}}</h1>
 
-      <span v-if="invitation" class="new-invitation-msg" @click="gameInit">
-        Allow {{guest[1]}} to join ?
-      </span>
+    <!-- new-invitation-notification -->
+    <span v-if="invitation" class="new-invitation-msg" @click="gameInit">
+      Allow <span style="color: red;">{{guest[1]}}</span> to join ?
+    </span>
 
-      <div id="name-box" v-if="!hasNickname">
-        <h5 id="name-box-title">Enter your nickname</h5>
-        <input
-          type="text"
-          id="name-input"
-          placeholder="YOUR NICKNAME"
-          v-model="nickname"
-          @keyup.enter="sendNickname"
-          autofocus
-        />
-      </div>
-
-      <div id="users-list" v-if="isWaiting">
-        <li
-          class="user-item"
-          v-for="player in players"
-          v-if="nickname != player[1]"
-          @click="joinRequest(player)"
-        >
-          {{player[1]}}
-        </li>
-      </div>
-
-      <div id="game" v-if="gameStart"></div>
+    <!-- name-input -->
+    <div id="name-box" v-if="!hasNickname">
+      <h5 id="name-box-title">Enter your nickname</h5>
+      <input type="text" id="name-input" placeholder="YOUR NICKNAME" v-model="nickname" @keyup.enter="sendNickname"
+        autofocus />
     </div>
 
-    <script src="modules/socket.io.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-    <script>
-      let globalSocket = io.connect("http://localhost:9900");
+    <!-- user-list -->
+    <div id="users-list" v-if="isWaiting">
+      <li class="user-item" v-for="player in players" v-if="nickname != player[1]" @click="sendJoinRequest(player)">
+        {{player[1]}}
+      </li>
+    </div>
 
-      let app = new Vue({
-        el: "#app",
-        data: {
-          title: "Battleship Online",
-          hasNickname: false,
-          isWaiting: false,
-          gameStart: false,
-          players: [],
-          nickname: "",
-          host: null,
-          guest: null,
-          invitation: false
-        },
+    <!-- game -->
+    <div id="game-box" v-if="gameLunched">
+      <div v-for="cell in cells" :id="cell.id" :class="cell.class"></div>
+    </div>
+  </div>
+  <script src="js/luncher.js"></script>
+  <script src="modules/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-        mounted() {
-          var self = this;
+  <script src="js/app.js"></script>
+</body>
 
-          // On welcome event
-          globalSocket.on("welcome", players => {
-            if (this.hasNickname) {
-              self.players = players;
-              self.isWaiting = true;
-              console.log(players);
-            }
-          });
-
-          globalSocket.on("user-disconcted", function(user) {
-            self.players.forEach(function(item, index) {
-              if (item[1] == user[1]) {
-                self.players.splice(index, 1);
-                return true;
-              }
-            });
-          });
-
-          // receive an invitation
-          globalSocket.on("game-request", function(gamePlayers) {
-            self.host = gamePlayers.host;
-            self.guest = gamePlayers.guest;
-
-            self.invitation = true;
-          });
-
-          globalSocket.on("game-ready", function(gamePlayers) {
-            let host = gamePlayers.host;
-            let gameSocket = io.connect(`http://localhost:9900/${host[0]}`);
-            console.log(`Connected to: localhost:9900/${host[0]}`);
-            this.lunchRoom();
-          });
-        },
-
-        methods: {
-          sendNickname() {
-            globalSocket.emit("new-user", this.nickname);
-            this.hasNickname = true;
-          },
-          joinRequest(host) {
-            // emit game-request to player's socket
-            globalSocket.emit("send-game-request", host);
-          },
-
-          gameInit() {
-            let host = this.host;
-            let guest = this.guest;
-
-            let gameSocket = io.connect(`http://localhost:9900/${host[0]}`);
-
-            console.log(`Connected to: localhost:9900/${host[0]}`);
-
-            globalSocket.emit("game-init", {
-              host,
-              guest
-            });
-          }
-        }
-      });
-    </script>
-  </body>
 </html>
