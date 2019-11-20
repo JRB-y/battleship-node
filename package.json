@@ -4,7 +4,7 @@
   "description": "Battleeship online made with nodejs.",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --exec babel-node index.js"
+    "start": "node --exec babel-node index.js"
   },
   "author": "jrb <jrb.youssef@gmail.com>",
   "license": "ISC",
