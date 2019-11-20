@@ -1,7 +1,10 @@
-import { app, io } from './src/server';
+import {
+  app,
+  io
+} from './server';
 
 // Matchmaking sockets
-require('./src/socket/matchmaking')(io);
+require('./socket/matchmaking')(io);
 /**
  * -----------------------------------
  *  Entry point for the application
